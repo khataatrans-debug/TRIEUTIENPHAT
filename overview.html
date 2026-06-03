@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>📊 Overview</title>
+<title>📊 Báo cáo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
@@ -116,7 +116,8 @@ tfoot td{background:#f0f4ff;font-weight:700;border-top:2px solid var(--accent);f
   html,body{background:#fff!important;font-size:9.5px!important;}
   .nav,.tabs-wrap,.filter-wrap,.btn,.btn-print,.no-print,
   .toolbar,.vat-bar,.sum-row{display:none!important;}
-  #panel-debit,#panel-salary{display:block!important;}
+  #panel-debit.print-active,#panel-salary.print-active{display:block!important;}
+  #panel-debit:not(.print-active),#panel-salary:not(.print-active){display:none!important;}
 
   /* Company header print */
   .company-header{
@@ -185,7 +186,7 @@ tfoot td{background:#f0f4ff;font-weight:700;border-top:2px solid var(--accent);f
     color:#0d2248!important;
     margin:8px 0 3px!important;
   }
-  .sign-section{
+  .sign-section.print-show{
     display:flex!important;
     justify-content:space-between;
     align-items:flex-end;
@@ -226,7 +227,7 @@ tfoot td{background:#f0f4ff;font-weight:700;border-top:2px solid var(--accent);f
 
 <div class="toolbar">
   <div class="toolbar-title">📊 TỔNG QUAN BÁO CÁO</div>
-  <button class="btn btn-print no-print" onclick="window.print()">🖨️ In / PDF</button>
+  <button class="btn btn-print no-print" onclick="doPrint()">🖨️ In / PDF</button>
 </div>
 
 <!-- VAT SETTINGS — dùng chung với Accountant, lưu Firebase RT DB -->
@@ -272,19 +273,19 @@ tfoot td{background:#f0f4ff;font-weight:700;border-top:2px solid var(--accent);f
  <div class="company-header">
   <div class="co-left">
     <div class="company-name" id="coName">
-      CÔNG TY TNHH THƯƠNG MẠI DỊCH VỤ GIAO NHẬN VẬN TẢI TRIỆU TIẾN PHÁT
+      CÔNG TY VẬN TẢI ABC
     </div>
 
     <div class="company-addr" id="coAddr">
-      Địa chỉ: Số 38/2 Đường Tây Hòa, Phường Phước Long, TP Hồ Chí Minh, Việt Nam
+      Địa chỉ: 1234 CAO THẮNG, PHƯỜNG 3, TP.HCM
     </div>
 
     <div class="company-addr">
-      Mã số thuế: 0316238009
+      Mã số thuế: 01031616116
     </div>
 
     <div class="company-addr">
-      Số tài khoản ngân hàng: 100599588 tại Ngân Hàng Thương Mại Cổ Phần Á Châu - PGD Nguyễn Thái Bình
+      Số tài khoản ngân hàng: 0812345678
     </div>
   </div>
 
@@ -296,24 +297,6 @@ tfoot td{background:#f0f4ff;font-weight:700;border-top:2px solid var(--accent);f
   </div>
 </div>
 
-  <!-- SIGNATURE DEBIT (chỉ hiện khi in) -->
-  <div class="sign-section" id="signDebit">
-    <div class="sign-block">
-      <div class="sign-title">Người lập bảng</div>
-      <div class="sign-name">&nbsp;</div>
-      <div class="sign-sub">(Ký, họ tên)</div>
-    </div>
-    <div class="sign-block">
-      <div class="sign-title">Kế toán trưởng</div>
-      <div class="sign-name">&nbsp;</div>
-      <div class="sign-sub">(Ký, họ tên)</div>
-    </div>
-    <div class="sign-block">
-      <div class="sign-title">Giám đốc</div>
-      <div class="sign-name">&nbsp;</div>
-      <div class="sign-sub">(Ký, họ tên, đóng dấu)</div>
-    </div>
-  </div>
 
   <!-- SUMMARY -->
   <div class="sum-row">
@@ -355,6 +338,25 @@ tfoot td{background:#f0f4ff;font-weight:700;border-top:2px solid var(--accent);f
       </tbody>
       <tfoot id="tfoot-debit"></tfoot>
     </table>
+  </div>
+
+  <!-- SIGNATURE DEBIT (chỉ hiện khi in) -->
+  <div class="sign-section" id="signDebit">
+    <div class="sign-block">
+      <div class="sign-title">Người lập bảng</div>
+      <div class="sign-name">&nbsp;</div>
+      <div class="sign-sub">(Ký, họ tên)</div>
+    </div>
+    <div class="sign-block">
+      <div class="sign-title">Kế toán trưởng</div>
+      <div class="sign-name">&nbsp;</div>
+      <div class="sign-sub">(Ký, họ tên)</div>
+    </div>
+    <div class="sign-block">
+      <div class="sign-title">Giám đốc</div>
+      <div class="sign-name">&nbsp;</div>
+      <div class="sign-sub">(Ký, họ tên, đóng dấu)</div>
+    </div>
   </div>
 
 </div><!-- /panel-debit -->
@@ -477,7 +479,7 @@ const ALL_NAV=[
   {page:"index.html",       label:"🚚 Trucking"},
   {page:"accountant.html",  label:"📒 Accountant"},
   {page:"performance.html", label:"📈 Performance"},
-  {page:"overview.html",    label:"📊 Overview"},
+  {page:"overview.html",    label:"📊 Báo cáo"},
   {page:"master.html",      label:"📂 Master",      adminOnly:true},
   {page:"maintenance.html", label:"🔧 Bảo dưỡng",  adminOnly:true},
   {page:"users.html",       label:"👑 Users",        adminOnly:true},
@@ -573,10 +575,12 @@ rtdb.ref(`settings_${APP_ID}/vat_rate`).on("value",snap=>{
 rtdb.ref(`master_data_${APP_ID}`).on("value", snap => {
   try {
     const master = snap.exists() ? snap.val() : {};
-    const co = master.company || {};
+    // Hỗ trợ cả 2 key: companyInfo (login.html) và company
+    const co = master.companyInfo || master.company || {};
     if (co.name) {
       document.getElementById("coName").textContent = co.name;
       const sal=document.getElementById("coNameSal");if(sal)sal.textContent=co.name;
+      document.title = `📊 Báo cáo — ${co.name}`;
     }
     if (co.address) {
       document.getElementById("coAddr").textContent = "Địa chỉ: " + co.address;
@@ -932,6 +936,22 @@ window.exportSalary=function(){
   csvDownload("BangLuong_LaiXe.csv", allRows);
   showToast("✅ Xuất Excel bảng lương thành công");
 };
+
+window.doPrint = function(){
+  const isDebit = document.getElementById('tabDebit').classList.contains('active');
+  document.getElementById('panel-debit').classList.toggle('print-active', isDebit);
+  document.getElementById('panel-salary').classList.toggle('print-active', !isDebit);
+  const signDebit = document.getElementById('signDebit');
+  const signSalary = document.getElementById('signSalary');
+  if(signDebit){ signDebit.classList.toggle('print-show', isDebit); }
+  if(signSalary){ signSalary.classList.toggle('print-show', !isDebit); }
+  const date = new Date().toLocaleDateString('vi-VN').replace(/\//g,'-');
+  const origTitle = document.title;
+  document.title = (isDebit ? 'BangCongNo' : 'BangLuong') + '_' + date;
+  window.print();
+  setTimeout(() => document.title = origTitle, 1000);
+};
+
 </script>
 </body>
 </html>
